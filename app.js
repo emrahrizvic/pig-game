@@ -9,9 +9,11 @@ GAME RULES:
 
 */
 
-var scores, roundScore, activePlayer, gamePlaying; 
+var scores, roundScore, activePlayer, gamePlaying;
 
 init(); 
+
+var lastDice, winningScore;
 
 document.querySelector('.btn-roll').addEventListener('click', function () {
 
@@ -26,14 +28,25 @@ document.querySelector('.btn-roll').addEventListener('click', function () {
     diceDOM.src = 'dice-' + dice + '.png';
 
     // 3. Update the round score IF the rolle number was NOT a 1
-    if (dice !== 1) {
-      // Add score
-      roundScore += dice;
-      document.querySelector('#current-' + activePlayer).textContent = roundScore;
-    } else {
-      // Next player
+    if (dice === 6 && lastDice === 6) {
+      // Player looses score
+      scores[activePlayer] = 0;
+      document.querySelector('#score-' + activePlayer).textContent = '0';
       nextPlayer();
+    } else {
+
+      if (dice !== 1) {
+        // Add score
+        roundScore += dice;
+        document.querySelector('#current-' + activePlayer).textContent = roundScore;
+      } else {
+        // Next player
+        nextPlayer();
+      }
+
     }
+
+    lastDice = dice;
 
   }
 
@@ -49,8 +62,18 @@ document.querySelector('.btn-hold').addEventListener('click', function () {
     // Update the UI
     document.querySelector('#score-' + activePlayer).textContent = scores[activePlayer];
 
+    var input = document.querySelector('.final-score').value;
+    
+    // Undefined, 0, null or "" are COERCED to false
+    // Anything else is COERCED to true
+    if (input) {
+      winningScore = input;
+    } else {
+      winningScore = 100;
+    }
+
     // Check if player won the game
-    if (scores[activePlayer] >= 100 ) {
+    if (scores[activePlayer] >= winningScore ) {
       document.getElementById('name-' + activePlayer).textContent = 'Winner!';
       document.querySelector('.dice').style.display = 'none';
       document.querySelector('.player-' + activePlayer + '-panel').classList.add('winner');
@@ -78,7 +101,6 @@ function nextPlayer() {
   document.querySelector('.dice').style.display = 'none';
 }
 
-// New game btn
 document.querySelector('.btn-new').addEventListener('click', init);
 
 function init() {
@@ -101,4 +123,5 @@ function init() {
   document.querySelector('.player-1-panel').classList.remove('active');
   document.querySelector('.player-0-panel').classList.add('active');
 }
+
 
